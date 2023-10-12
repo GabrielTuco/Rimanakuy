@@ -19,3 +19,6 @@ sacremoses~=0.0.35
 scipy
 glob2~=0.6
 visdom~=0.1.8.9
+graphviz
+dill
+tensorboard

@@ -1,7 +1,7 @@
-Epoch 21: Average training statistics
+Epoch 16: Average training statistics
 ----------------------------------------
 
 
-Epoch 21: Average validation statistics
+Epoch 15: Average validation statistics
 ----------------------------------------
 
