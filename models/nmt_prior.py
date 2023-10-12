@@ -1,5 +1,7 @@
 import os
-
+import sys
+sys.path.insert(0, '.')
+sys.path.insert(0, '..')
 from torch import nn
 from transformers import GPT2Tokenizer, GPT2LMHeadModel
 

@@ -1,7 +1,7 @@
 import hashlib
 import inspect
 import os
-import pickle
+import dill as pickle
 from abc import ABC
 
 import numpy
@@ -15,6 +15,8 @@ from modules.data.streaming import DatasetCache
 from modules.data.utils import vectorize, fix_paths
 from modules.data.vocab import Vocab
 
+def tokenize_with_subword(x, subword):
+    return subword.EncodeAsPieces(x.rstrip())
 
 class BaseSequenceDataset(Dataset, ABC):
     def __init__(self,
@@ -53,27 +55,20 @@ class BaseSequenceDataset(Dataset, ABC):
         else:
             self.tokenize = self.space_tok
 
-        if self.subword_path is not None:
-            subword = spm.SentencePieceProcessor()
+        if self.subword_path is not None:            
+            self.subword = spm.SentencePieceProcessor()
             subword_path = fix_paths(subword_path, "datasets")
-            subword.Load(subword_path + ".model")
-            self.tokenize = lambda x: subword.EncodeAsPieces(x.rstrip())
+            self.subword.Load(subword_path + ".model")
+            self.tokenize = self.tokenize_with_subword
         else:
             self.tokenize = MosesTokenizer(lang=lang).tokenize
 
         # > Build Vocabulary --------------------------------------------
-        self.vocab, is_vocab_built = self.init_vocab(vocab, subword_path, oovs)
+        self.vocab, self.is_vocab_built = self.init_vocab(vocab, subword_path, oovs)
 
         # > Cache text file ---------------------------------------------
         self.lengths = []
         _is_cached = False
-
-        def _line_callback(x):
-            _tokens = self.tokenize(x)
-            self.lengths.append(len(self.add_special_tokens(_tokens)))
-
-            if is_vocab_built is False:
-                self.vocab.read_sequence(_tokens)
 
         # -------------------------------------------------------------
         # If there is a (vocab, lengths) tuple associated with the given input
@@ -93,14 +88,14 @@ class BaseSequenceDataset(Dataset, ABC):
         # > Preprocessing ---------------------------------------------
         print("Preprocessing...")
         self.data = DatasetCache(input,
-                                 callback=_line_callback,
+                                 #callback=self._line_callback,
                                  subsample=subsample)
 
         # if the text file has already been cached,
         # but lengths and vocab are not cached (i.e., new for this input file)
-        if _is_cached is False and len(self.lengths) == 0:
+        """if _is_cached is False and len(self.lengths) == 0:
             for i in range(len(self.data)):
-                _line_callback(self.data[i])
+                self._line_callback(self.data[i])"""
 
         # trim down the size of a newly created vocab
         if subword_path is None and vocab_size is not None:
@@ -115,6 +110,17 @@ class BaseSequenceDataset(Dataset, ABC):
                 pickle.dump((self.vocab, self.lengths), f)
 
         self.lengths = numpy.array(self.lengths)
+
+
+    def tokenize_with_subword(self, x):
+        return self.subword.EncodeAsPieces(x.rstrip())
+    
+    def _line_callback(self,x):
+        _tokens = self.tokenize(x)
+        self.lengths.append(len(self.add_special_tokens(_tokens)))
+
+        if self.is_vocab_built is False:
+            self.vocab.read_sequence(_tokens)
 
     @staticmethod
     def init_vocab(vocab=None, subword_path=None, oovs=0):

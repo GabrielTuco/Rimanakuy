@@ -42,7 +42,7 @@ def make_paths(cfg):
 
 def load_config(file):
     with open(file, 'r') as stream:
-        cfg = yaml.load(stream)
+        cfg = yaml.load(stream, Loader=yaml.SafeLoader)
     cfg = make_paths(cfg)
 
     return cfg

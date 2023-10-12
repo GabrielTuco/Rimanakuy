@@ -219,7 +219,7 @@ class Experiment(object):
             f.write(json.dumps(_state))
 
     def get_timestamp(self):
-        return self.timestamp_start.strftime("%y-%m-%d_%H:%M:%S")
+        return self.timestamp_start.strftime("%y-%m-%d")
 
     def to_pickle(self):
         filename = os.path.join(self.output_dir, self.name + ".pickle")

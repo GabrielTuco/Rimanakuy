@@ -28,7 +28,7 @@ MODEL_DIRS = ["models", "modules", "helpers"]
 VIS = {
     "server": "http://localhost",
     "enabled": True,
-    "port": 8096,
+    "port": 8097,
     "base_url": "/",
     "http_proxy_host": None,
     "http_proxy_port": None,
@@ -43,6 +43,11 @@ elif str(Path.home()) == "/home/cbaziotis":
     VIS["port"] = 8096
 else:
     VIS["enabled"] = 8097
+
+
+
+
+
 
 
 

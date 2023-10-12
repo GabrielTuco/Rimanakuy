@@ -1,7 +1,9 @@
 import os
 
 from torch.utils.data import DataLoader
-
+import sys
+sys.path.insert(0, '.')
+sys.path.insert(0, '..')
 from helpers.opts import exp_options
 from models.sent_lm_callbacks import SentLMSamplesCallback
 from models.sent_lm_trainer import SentLMTrainer

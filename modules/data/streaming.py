@@ -1,6 +1,6 @@
 import os
 import pickle
-from collections import Iterable
+from collections.abc import Iterable
 from typing import Callable
 
 from tqdm import tqdm
@@ -90,8 +90,7 @@ class DatasetCache:
 
     def __getitem__(self, line_no):
         if self.fhandle is None:
-            self.fhandle = open(self.filename, 'rb',
-                                os.O_RDONLY | os.O_NONBLOCK)
+            self.fhandle = open(self.filename, 'rb')
 
         f = self.fhandle
 
