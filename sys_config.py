@@ -27,7 +27,7 @@ MODEL_DIRS = ["models", "modules", "helpers"]
 
 VIS = {
     "server": "http://localhost",
-    "enabled": True,
+    "enabled": False,
     "port": 8097,
     "base_url": "/",
     "http_proxy_host": None,
