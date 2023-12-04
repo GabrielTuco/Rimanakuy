@@ -450,8 +450,8 @@ class Trainer:
             self.train_loader.reset()
         except:
             pass
-        batch_index = 0
-        for batch in self.train_loader:
+        
+        for batch_index,batch in enumerate(self.train_loader,1):
             self.model.train()
             self.step += 1
 
@@ -487,7 +487,6 @@ class Trainer:
             except:
                 pass
             del batch
-            batch_index=+1
 
         for c in self.callbacks:
             c.train_epoch_end(self, epoch_losses)
