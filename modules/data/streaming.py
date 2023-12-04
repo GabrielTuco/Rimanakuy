@@ -1,6 +1,6 @@
 import os
 import pickle
-from collections.abc import Iterable
+from collections import Iterable
 from typing import Callable
 
 from tqdm import tqdm

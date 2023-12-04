@@ -1,7 +1,7 @@
 import hashlib
 import inspect
 import os
-import dill as pickle
+import pickle
 from abc import ABC
 
 import numpy
@@ -15,8 +15,9 @@ from modules.data.streaming import DatasetCache
 from modules.data.utils import vectorize, fix_paths
 from modules.data.vocab import Vocab
 
-def tokenize_with_subword(x, subword):
-    return subword.EncodeAsPieces(x.rstrip())
+def _hash(x):
+        return hashlib.sha256(x.encode()).hexdigest()
+
 
 class BaseSequenceDataset(Dataset, ABC):
     def __init__(self,
@@ -55,20 +56,28 @@ class BaseSequenceDataset(Dataset, ABC):
         else:
             self.tokenize = self.space_tok
 
-        if self.subword_path is not None:            
-            self.subword = spm.SentencePieceProcessor()
+        if self.subword_path is not None:
+            subword = spm.SentencePieceProcessor()
             subword_path = fix_paths(subword_path, "datasets")
-            self.subword.Load(subword_path + ".model")
-            self.tokenize = self.tokenize_with_subword
+            subword.Load(subword_path + ".model")
+            self.subword= subword
+            #self.tokenize = lambda x: subword.EncodeAsPieces(x.rstrip())
         else:
             self.tokenize = MosesTokenizer(lang=lang).tokenize
 
         # > Build Vocabulary --------------------------------------------
-        self.vocab, self.is_vocab_built = self.init_vocab(vocab, subword_path, oovs)
+        self.vocab, is_vocab_built = self.init_vocab(vocab, subword_path, oovs)
 
         # > Cache text file ---------------------------------------------
         self.lengths = []
         _is_cached = False
+
+        def _line_callback(x):
+            _tokens = self.tokenize(x)
+            self.lengths.append(len(self.add_special_tokens(_tokens)))
+
+            if is_vocab_built is False:
+                self.vocab.read_sequence(_tokens)
 
         # -------------------------------------------------------------
         # If there is a (vocab, lengths) tuple associated with the given input
@@ -88,14 +97,14 @@ class BaseSequenceDataset(Dataset, ABC):
         # > Preprocessing ---------------------------------------------
         print("Preprocessing...")
         self.data = DatasetCache(input,
-                                 #callback=self._line_callback,
+                                 callback=_line_callback,
                                  subsample=subsample)
 
         # if the text file has already been cached,
         # but lengths and vocab are not cached (i.e., new for this input file)
-        """if _is_cached is False and len(self.lengths) == 0:
+        if _is_cached is False and len(self.lengths) == 0:
             for i in range(len(self.data)):
-                self._line_callback(self.data[i])"""
+                _line_callback(self.data[i])
 
         # trim down the size of a newly created vocab
         if subword_path is None and vocab_size is not None:
@@ -110,17 +119,9 @@ class BaseSequenceDataset(Dataset, ABC):
                 pickle.dump((self.vocab, self.lengths), f)
 
         self.lengths = numpy.array(self.lengths)
-
-
-    def tokenize_with_subword(self, x):
+        
+    def tokenize(x):
         return self.subword.EncodeAsPieces(x.rstrip())
-    
-    def _line_callback(self,x):
-        _tokens = self.tokenize(x)
-        self.lengths.append(len(self.add_special_tokens(_tokens)))
-
-        if self.is_vocab_built is False:
-            self.vocab.read_sequence(_tokens)
 
     @staticmethod
     def init_vocab(vocab=None, subword_path=None, oovs=0):
@@ -154,6 +155,7 @@ class BaseSequenceDataset(Dataset, ABC):
         vector = vectorize(token_list, self.vocab)
         return vector
 
+    
     @staticmethod
     def _get_cache_key(input, vocab, tokenize, subword_path, vocab_size,
                        subsample):
@@ -168,7 +170,7 @@ class BaseSequenceDataset(Dataset, ABC):
         Returns:
 
         """
-        _hash = lambda x: hashlib.sha256(x.encode()).hexdigest()
+        
         _cache_key = _hash(input) + str(os.stat(input).st_mtime)
 
         if vocab is not None:

@@ -42,7 +42,7 @@ elif str(Path.home()) == "/home/cbaziotis":
     VIS["server"] = "http://magni"
     VIS["port"] = 8096
 else:
-    VIS["enabled"] = 8097
+    VIS["enabled"] = False
 
 
 

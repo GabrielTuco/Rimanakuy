@@ -15,7 +15,7 @@ def files_to_dict(dirs, safe=True):
             filename = os.path.basename(file)
             if safe:
                 filename = filename.replace('.', '[dot]')
-            file_data[_dir][filename] = Path(file).read_text(encoding="utf-8")
+            file_data[_dir][filename] = Path(file).read_text(encoding='utf-8')
 
     return file_data
 

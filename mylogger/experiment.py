@@ -20,6 +20,14 @@ class Experiment(object):
     """
     Experiment class
     """
+    def get_custom_timestamp(self):
+        # Obtiene la fecha y hora actual
+        current_time = datetime.now()
+
+        # Formatea la fecha y hora en un formato personalizado sin ':'
+        timestamp_format = current_time.strftime("%Y-%m-%d_%H-%M-%S")
+
+        return timestamp_format
 
     def __init__(self, name,
                  config,
@@ -68,16 +76,18 @@ class Experiment(object):
         # --------------------------------------------------------------
         # create experiment instance directory
         # --------------------------------------------------------------
+        
+
         exp_dir = os.path.join(EXP_DIR, self.name)
 
         if resume_state_id is None:
-            self.output_dir = os.path.join(exp_dir, self.get_timestamp())
+            self.output_dir = os.path.join(exp_dir, self.get_custom_timestamp())
         else:
             states = glob.glob(exp_dir + "/*" + resume_state_id)
             if len(states) > 0:
                 self.output_dir = states[0]
             else:
-                self.output_dir = os.path.join(exp_dir, self.get_timestamp())
+                self.output_dir = os.path.join(exp_dir, self.get_custom_timestamp())
                 self.output_dir += "_" + resume_state_id
 
         os.makedirs(self.output_dir, exist_ok=True)
@@ -219,7 +229,7 @@ class Experiment(object):
             f.write(json.dumps(_state))
 
     def get_timestamp(self):
-        return self.timestamp_start.strftime("%y-%m-%d")
+        return self.timestamp_start.strftime("%y-%m-%d_%H:%M:%S")
 
     def to_pickle(self):
         filename = os.path.join(self.output_dir, self.name + ".pickle")
