@@ -86,8 +86,8 @@ class GradientCallback(TrainerCallback):
                  .set_properties(**{'text-align': 'left'})
                  .format("{:.4f}", subset=['∥∇∥'])
                  .bar(subset=['∥∇∥'], color='#d65f5f')
-                 .hide_index()
-                 .render())
+                 .hide(axis="index")
+                 .to_html())
 
         _key = f"grad_norms"
         _title = f"Gradient Norms"
@@ -151,7 +151,7 @@ class ModuleGradientCallback(TrainerCallback):
                  .format("{:.4f}")
                  # .bar(color='#d65f5f', axis=None)
                  .bar(color='#d65f5f', axis=0)
-                 .render())
+                 .to_html())
 
         _key = f"grads_per_loss"
         _title = f"Gradients Per Loss"
