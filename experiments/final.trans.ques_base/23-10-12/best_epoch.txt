@@ -1,7 +1,0 @@
-Epoch 1: Average training statistics
-----------------------------------------
-
-
-Epoch 1: Average validation statistics
-----------------------------------------
-

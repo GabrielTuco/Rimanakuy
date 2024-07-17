@@ -1,4 +1,4 @@
-epochs: 200
+epochs: 2
 batch_tokens: 1000
 parallel: False
 pin_memory: False

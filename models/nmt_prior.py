@@ -141,9 +141,9 @@ if __name__ == "__main__":
     # _config["cores"] = 0
     # _config["pin_memory"] = False
     print(_config)
-    # trained_model = run(_config)
+    trained_model = run(_config)
 
-    # eval_best(trained_model)
+    eval_best(trained_model)
 
     if "backtranslate_path" in trained_model.config["data"]:
         backtranslate(trained_model)

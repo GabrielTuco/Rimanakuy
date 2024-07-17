@@ -1,11 +1,21 @@
 epochs: 2
 batch_tokens: 10000
-
+cores: 2
+pin_memory: 2
+device: cuda
+src_dirs: ['/content/Rimanakuy/models', '/content/Rimanakuy/modules', '/content/Rimanakuy/helpers']
+resume_cp: None
+resume_state_id: None
+config: configs/transformer/trans.ques_base.yaml
+name: final.trans.ques_base
+desc: None
+tag: None
+visdom: False
 logging:
   log_interval: 50
   eval_interval: 1000
   full_eval_interval: 4000000
-  checkpoint_interval: 2
+  checkpoint_interval: 50
   samples_interval: 200
   emb_inspect_interval: 200
   module_grad_interval: 200
