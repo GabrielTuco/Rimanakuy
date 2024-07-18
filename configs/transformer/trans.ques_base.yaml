@@ -59,8 +59,8 @@ data:
   vocab_size:
 
   # path to pretrained LM. It is required for LM-Fusion and LM-priors
-  prior_path:
-
+  prior_path: ./LlamaRoBERTa
+  #prior_path:
 losses:
   #  standard translation loss (Cross-Entropy)
   mt:
@@ -68,12 +68,12 @@ losses:
     tag: translation
     perplexity: True
     smoothing: 0.0
-#  prior:
-#    weight: 0.5
-#    tag: prior
-#    tau: 2
-#    perplexity: False
-#    objective: kl
+  prior:
+    weight: 0.5
+    tag: prior
+    tau: 2
+    perplexity: False
+    objective: kl
 #  sem:
 #    weight: 1
 #    dist: cosine

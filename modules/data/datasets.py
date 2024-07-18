@@ -64,6 +64,7 @@ class BaseSequenceDataset(Dataset, ABC):
             #self.tokenize = lambda x: subword.EncodeAsPieces(x.rstrip())
         else:
             self.tokenize = MosesTokenizer(lang=lang).tokenize
+            print(self.tokenize)
 
         # > Build Vocabulary --------------------------------------------
         self.vocab, is_vocab_built = self.init_vocab(vocab, subword_path, oovs)
@@ -120,8 +121,8 @@ class BaseSequenceDataset(Dataset, ABC):
 
         self.lengths = numpy.array(self.lengths)
         
-    def tokenize(x):
-        return self.subword.EncodeAsPieces(x.rstrip())
+    #def tokenize(x):
+        #return self.subword.EncodeAsPieces(x.rstrip())
 
     @staticmethod
     def init_vocab(vocab=None, subword_path=None, oovs=0):
@@ -186,7 +187,11 @@ class BaseSequenceDataset(Dataset, ABC):
 
     @staticmethod
     def space_tok(text):
-        return text.rstrip().split()
+        #return text.rstrip().split()
+        if isinstance(text, str):
+            return text.rstrip().split()
+        else:
+            return text
 
     def add_special_tokens(self, tokens):
         tokens = tokens + [self.vocab.EOS]
@@ -231,15 +236,15 @@ class SequenceDataset(BaseSequenceDataset):
         """
         Dataset for sentence-level Language Modeling.
         """
-
+        super().__init__(*args, **kwargs)
         # todo: hasty hack - fix after submission
         if kwargs.get("vocab") is not None and kwargs.get("vocab").is_gpt2:
             with open(args[0], encoding="utf-8") as f:
                 self.vocab = kwargs.get("vocab")
                 self.data = [self.vocab.gpt2_tok(line) for line in f]
                 self.lengths = numpy.array([len(x) for x in self.data])
-        else:
-            super().__init__(*args, **kwargs)
+        #else:
+            #super().__init__(*args, **kwargs)
 
     def __len__(self):
         return len(self.data)

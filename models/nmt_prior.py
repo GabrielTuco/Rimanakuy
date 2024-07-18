@@ -3,7 +3,7 @@ import sys
 sys.path.insert(0, '.')
 sys.path.insert(0, '..')
 from torch import nn
-from transformers import GPT2Tokenizer, GPT2LMHeadModel
+from transformers import GPT2Tokenizer, GPT2LMHeadModel,RobertaForMaskedLM, RobertaTokenizer
 
 from helpers.opts import exp_options
 from helpers.training import load_checkpoint
@@ -22,6 +22,7 @@ from modules.models import Seq2SeqTransformer, Seq2SeqRNN
 from sys_config import MODEL_CNF_DIR
 
 
+
 def run(config):
     # -------------------------------------------------------------------------
     # Load pretrained models
@@ -37,6 +38,13 @@ def run(config):
             vocab_trg = Vocab()
             vocab_trg.from_gpt2(tokenizer)
             _checkp_prior = GPT2LMHeadModel.from_pretrained(_gpt_model)
+            config["model"]["dec_padding_idx"] = None
+        elif "RoBERTa" in config["data"]["prior_path"]:
+            _model = config["data"]["prior_path"]
+            tokenizer = RobertaTokenizer.from_pretrained(_model)
+            vocab_trg = Vocab()
+            vocab_trg.from_roberta(tokenizer)
+            _checkp_prior = RobertaForMaskedLM.from_pretrained(_model)
             config["model"]["dec_padding_idx"] = None
         else:
             _checkp_prior = load_checkpoint(config["data"]["prior_path"])
@@ -73,6 +81,13 @@ def run(config):
     _has_lm_fusion = config["model"]["decoding"].get("fusion") is not None
     if _has_lm_prior or _has_lm_fusion:
         if "gpt2" in config["data"]["prior_path"]:
+            prior = _checkp_prior
+            prior.to(config["device"])
+            freeze_module(prior)
+            for name, module in prior.named_modules():
+                if isinstance(module, nn.Dropout):
+                    module.p = 0
+        elif "RoBERTa" in config["data"]["prior_path"]:
             prior = _checkp_prior
             prior.to(config["device"])
             freeze_module(prior)
