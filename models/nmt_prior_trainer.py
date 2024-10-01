@@ -64,7 +64,7 @@ class NmtPriorTrainer(Trainer):
         losses["mt"] = self.criterion(outputs[1]["logits"], y_eos, y_len)[0]
 
         if "prior" in self.config["losses"] and self.prior is not None:
-            print("Start prior")
+            
             f_reg = self.config["losses"]["prior"].get("objective", "kl")
 
             if f_reg == "mse":

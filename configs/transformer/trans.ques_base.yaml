@@ -1,8 +1,8 @@
 epochs: 2
-batch_tokens: 10000
+batch_tokens: 5000
 
 logging:
-  log_interval: 50
+  log_interval: 100
   eval_interval: 1000
   full_eval_interval: 4000000
   checkpoint_interval: 2

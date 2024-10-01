@@ -15,7 +15,7 @@ from models.nmt_prior_helpers import nmt_dataloaders, \
 from models.translate import prior_model_from_checkpoint
 from models.nmt_prior_trainer import NmtPriorTrainer
 from modules.callbacks import LossCallback, GradientCallback, \
-    ModuleGradientCallback, FunctionCallback
+    ModuleGradientCallback, FunctionCallback, CheckpointCallback
 from modules.data.vocab import Vocab
 from modules.initializations import model_init
 from modules.models import Seq2SeqTransformer, Seq2SeqRNN
@@ -109,6 +109,9 @@ def run(config):
     callbacks = [
         LossCallback(config["logging"]["log_interval"]),
         GradientCallback(config["logging"]["log_interval"]),
+        CheckpointCallback(config["logging"]["checkpoint_interval"],
+                           only_best=True,
+                           early_stop=config["optim"].get("early_stop", 100)),
         ModuleGradientCallback(["encoder"], config["logging"]["log_interval"]),
         SamplesCallback(config["logging"]["log_interval"]),
         EvalCallback(config["logging"]["eval_interval"], keep_best=True,
